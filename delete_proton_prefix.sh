@@ -78,7 +78,7 @@ main_shebang() {
     declare -a game_names
     declare -a app_ids
     declare -a prefix_paths
-    index=0
+    local index=0
 
     # Collect games
     for path in "${library_paths[@]}"; do
@@ -102,16 +102,27 @@ main_shebang() {
         done
     done
 
-    # Create a list of active prefixes for kdialog
-    game_list=()
+    # Build an array of indices for active Steam prefixes
+    indices=()
     for ((i = 0; i < index; i++)); do
         # Be sure to filter Proton from the list, for some reason it got a prefix too.
         if [[ ! "${game_names[i]}" =~ ^Proton\ (Experimental|Hotfix|Next) ]] && ! [[ ${game_names[i]} =~ ^Proton\ [[:digit:]]+(\.[[:digit:]]+)*.* ]];then
-            game_list+=("$((i + 1))" "${game_names[i]} (${app_ids[i]})")
+            indices+=("$i")
         fi
     done
 
-    # Populate kdialog with active steam prefixes
+    # Sort indices by game_names
+    sorted_indices=($(for i in "${indices[@]}"; do
+        echo "$i ${game_names[i]}"
+    done | sort -k2 | awk '{print $1}'))
+
+    # Build the game_list for kdialog using sorted indices
+    game_list=()
+    for i in "${sorted_indices[@]}"; do
+        game_list+=("$((i + 1))" "${game_names[i]} (${app_ids[i]})")
+    done
+
+    # Populate kdialog with active Steam prefixes
     selected_game=$(kdialog --geometry 600x400 --title "Select a prefix" --menu "Found prefixes:" "${game_list[@]}")
 
     # Validate input
@@ -144,13 +155,13 @@ main_shebang() {
                 # User did not want to delete the prefix, return to main prefix dialog.
                 main_shebang
                 ;;
-            255)  
+            255)
                 # 255 - Error or user closed dialog
                 exit
                 ;;
         esac
     else
-       # User closed main dialog, silently quit
+        # User closed main dialog, silently quit
         exit
     fi
 }
