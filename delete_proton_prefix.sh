@@ -106,7 +106,7 @@ main_shebang() {
     game_list=()
     for ((i = 0; i < index; i++)); do
         # Be sure to filter Proton from the list, for some reason it got a prefix too.
-        if [ ! "${game_names[i]}" = "Proton Experimental" ]  || [[ ${game_names} =~ ^Proton\ [[:digit:]]+(\.[[:digit:]]+)*$ ]];then
+        if [[ ! "${game_names[i]}" =~ ^Proton\ (Experimental|Hotfix|Next) ]] && ! [[ ${game_names[i]} =~ ^Proton\ [[:digit:]]+(\.[[:digit:]]+)*.* ]];then
             game_list+=("$((i + 1))" "${game_names[i]} (${app_ids[i]})")
         fi
     done
