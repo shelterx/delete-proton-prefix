@@ -3,8 +3,9 @@
 # FIXME: non-steam games not supported
 #
 
-# Prevent window debug output for kdialog
-export QT_LOGGING_RULES="*.debug=false"
+# Prevent window debug/warning output for kdialog and notifcations.
+export QT_LOGGING_RULES="*.debug=false;kf.notifications.warning=false"
+
 
 # Genereal function to check for existing files
 check_files_exist() {
